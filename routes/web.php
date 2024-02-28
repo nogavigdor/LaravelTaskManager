@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,7 +66,13 @@ $tasks = [
     ),
 ];
 
-Route::get('/', function () use ($tasks) {
+//redirect to tasks.index in case of root route
+Route::get('/', function () {
+    return redirect()->route('tasks.index');
+});
+
+//tasks.index route
+Route::get('/tasks', function () use ($tasks) {
     return view('index',
         [
             'tasks' => $tasks
@@ -73,6 +80,13 @@ Route::get('/', function () use ($tasks) {
     );
 })->name('tasks.index');
 
-Route::get('/{id}', function ($id) {
-    return 'one single task';
+//tasks.show route
+Route::get('/tasks/{id}', function ($id) use ($tasks) {
+    $task = collect($tasks)->firstWhere('id', $id);
+
+    if (!$task) {
+        abort(404);
+    }
+
+    return view('show', ['task' => $task]);
 })->name('tasks.show');
